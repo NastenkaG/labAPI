@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace labAPI.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20220914074308_InitialData")]
-    partial class InitialData
+    [Migration("20220928070000_DataBase")]
+    partial class DataBase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -115,6 +115,84 @@ namespace labAPI.Migrations
                             CompanyId = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3"),
                             Name = "Kane Miller",
                             Position = "Administrator"
+                        });
+                });
+
+            modelBuilder.Entity("Entities.Models.Garden", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("GardenId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(60)")
+                        .HasMaxLength(60);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(60)")
+                        .HasMaxLength(60);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Garden");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("81abbca8-664d-4b20-b5de-024705497d4a"),
+                            Country = "USA",
+                            Name = "Tropics"
+                        },
+                        new
+                        {
+                            Id = new Guid("80abbca8-664d-4b20-b9de-024705497d4a"),
+                            Country = "USA",
+                            Name = "Desert"
+                        });
+                });
+
+            modelBuilder.Entity("Entities.Models.Plant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("PlantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(60)")
+                        .HasMaxLength(60);
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(60)")
+                        .HasMaxLength(60);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Plant");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("88acbca8-684d-4b20-b5de-024705497d4a"),
+                            Name = "Derevo",
+                            Position = "Zemlia"
+                        },
+                        new
+                        {
+                            Id = new Guid("86dba8c0-d158-41f7-938c-ed49778cb52a"),
+                            Name = "Flower",
+                            Position = "Trava"
+                        },
+                        new
+                        {
+                            Id = new Guid("021ca3c1-0deb-4bbd-ae94-2159a9679811"),
+                            Name = "Kaktus",
+                            Position = "Pesok"
                         });
                 });
 

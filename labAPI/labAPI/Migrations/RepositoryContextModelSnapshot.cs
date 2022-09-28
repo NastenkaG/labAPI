@@ -159,9 +159,6 @@ namespace labAPI.Migrations
                         .HasColumnName("PlantId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("GardenId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(60)")
@@ -174,29 +171,24 @@ namespace labAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GardenId");
-
                     b.ToTable("Plant");
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("88acbca8-684d-4b20-b5de-024705497d4a"),
-                            GardenId = new Guid("81abbca8-666d-4b20-b5de-024705497d4a"),
                             Name = "Derevo",
                             Position = "Zemlia"
                         },
                         new
                         {
                             Id = new Guid("86dba8c0-d158-41f7-938c-ed49778cb52a"),
-                            GardenId = new Guid("81abbca8-669d-4b20-b5de-024705497d4a"),
                             Name = "Flower",
                             Position = "Trava"
                         },
                         new
                         {
                             Id = new Guid("021ca3c1-0deb-4bbd-ae94-2159a9679811"),
-                            GardenId = new Guid("80abbca8-665d-4b20-b9de-024705497d4a"),
                             Name = "Kaktus",
                             Position = "Pesok"
                         });
@@ -207,15 +199,6 @@ namespace labAPI.Migrations
                     b.HasOne("Entities.Models.Company", "Company")
                         .WithMany("Employees")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Entities.Models.Plant", b =>
-                {
-                    b.HasOne("Entities.Models.Garden", "Garden")
-                        .WithMany("Plants")
-                        .HasForeignKey("GardenId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
