@@ -16,5 +16,7 @@ namespace Entities.Models
         [Required(ErrorMessage = "Company address is a required field.")]
         [MaxLength(60, ErrorMessage = "Maximum length for rhe Address is 60 characte")]
         public string Position { get; set; }
+        public Guid GardenId { get; set; }
+        public Garden Garden { get; set; }
     }
 }

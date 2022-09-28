@@ -16,5 +16,6 @@ namespace Entities.Models
         [Required(ErrorMessage = "Company address is a required field.")]
         [MaxLength(60, ErrorMessage = "Maximum length for rhe Address is 60 characte")]
         public string Country { get; set; }
+        public ICollection<Plant> Plants { get; set; }
     }
 }
