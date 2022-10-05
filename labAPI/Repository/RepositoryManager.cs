@@ -53,11 +53,8 @@ namespace Repository
                 return _plantRepository;
             }
         }
-        ICompanyRepository IRepositoryManager.Company => throw new NotImplementedException();
 
-        IEmployeeRepository IRepositoryManager.Employee => throw new NotImplementedException();
-
-        IEmployeeRepository IRepositoryManager.Garden => throw new NotImplementedException();
+        public IEmployeeRepository Garden => throw new NotImplementedException();
 
         IEmployeeRepository IRepositoryManager.Plant => throw new NotImplementedException();
 
