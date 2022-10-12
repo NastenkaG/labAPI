@@ -12,31 +12,18 @@ namespace labAPI.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        private readonly IRepositoryManager _repository;
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(IRepositoryManager repository)
         {
-            _logger = logger;
+            _repository = repository;
         }
 
         [HttpGet]
-        public IEnumerable<string> Get()
+        public ActionResult<IEnumerable<string>> Get()
         {
-            _logger.LogInformation("Вот информационное сообщение от нашего контроллера значений.");
-
-
-            _logger.LogDebug("Вот отладочное сообщение от нашего контроллера значений.");
-
-
-            _logger.LogWarning("Вот сообщение предупреждения от нашего контроллера значений.");
-
-
-            _logger.LogError("Вот сообщение об ошибке от нашего контроллера значений.");
+            //_repository.Company.AnyMethodFromCompanyRepository();
+            //_repository.Employee.AnyMethodFromEmployeeRepository();
             return new string[] { "value1", "value2" };
         }
 
