@@ -2,7 +2,7 @@
 using Entities.DataTransferObjects;
 using Entities.Models;
 
-namespace labAPI
+namespace labAPI.Mapping
 {
     public class MappingProfile : Profile
     {

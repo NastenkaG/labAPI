@@ -35,7 +35,7 @@ namespace Repository
                 return _employeeRepository;
             }
         }
-        public IGardenRepository DepartmentGarden
+        public IGardenRepository Garden
         {
             get
             {
@@ -54,9 +54,8 @@ namespace Repository
             }
         }
 
-        public IEmployeeRepository Garden => throw new NotImplementedException();
 
-        IEmployeeRepository IRepositoryManager.Plant => throw new NotImplementedException();
+        IPlantRepository IRepositoryManager.Plant => throw new NotImplementedException();
 
         public void Save() => _repositoryContext.SaveChanges();
 
