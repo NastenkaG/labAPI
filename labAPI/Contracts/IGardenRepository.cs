@@ -8,5 +8,6 @@ namespace Contracts
     public interface IGardenRepository
     {
         IEnumerable<Garden> GetAllGardens(bool trackChanges);
+        Garden GetGarden(Guid gardenId, bool trackChanges);
     }
 }

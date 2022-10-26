@@ -4,6 +4,7 @@ using Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Repository
 {
@@ -13,5 +14,10 @@ namespace Repository
         : base(repositoryContext)
         {
         }
+        public IEnumerable<Plant> GetPlants(Guid gardenId, bool trackChanges) =>
+            FindByCondition(p => p.GardenId.Equals(gardenId), trackChanges)
+                .OrderBy(p => p.Name);
+        public Plant GetPlant(Guid gardenId, Guid id, bool trackChanges) =>
+            FindByCondition(p => p.GardenId.Equals(gardenId) && p.Id.Equals(id), trackChanges).SingleOrDefault();
     }
 }

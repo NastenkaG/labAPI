@@ -16,6 +16,8 @@ namespace Repository
         }
         public IEnumerable<Garden> GetAllGardens(bool trackChanges) =>
             FindAll(trackChanges).OrderBy(g => g.Name).ToList();
+        public Garden GetGarden(Guid gardenId, bool trackChanges) => FindByCondition(g
+=> g.Id.Equals(gardenId), trackChanges).SingleOrDefault();
     }
 }
 

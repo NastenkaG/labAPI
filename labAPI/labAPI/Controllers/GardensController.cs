@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System;
@@ -23,12 +24,20 @@ namespace labAPI.Controllers
             _logger = logger;
             _mapper = mapper;
         }
-        [HttpGet]
-        public IActionResult GetGardens()
+        [HttpGet("{id}")]
+        public IActionResult GetGardens(Guid id)
         {
-            var gardens = _repository.Garden.GetAllGardens(trackChanges:false);
-            var gardensDto = _mapper.Map<IEnumerable<GardenDto>>(gardens);
-            return Ok(gardensDto);
+            var garden = _repository.Garden.GetGarden(id, trackChanges:false);
+            if (garden == null)
+            {
+                _logger.LogInfo($"Garden with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            else
+            {
+                var gardenDto = _mapper.Map<GardenDto>(garden);
+                return Ok(gardenDto);
+            }
         }
     }
 }
