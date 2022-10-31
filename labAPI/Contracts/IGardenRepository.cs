@@ -11,5 +11,6 @@ namespace Contracts
         Garden GetGarden(Guid gardenId, bool trackChanges);
         void CreateGarden(Garden garden);
         IEnumerable<Garden> GetByIds(IEnumerable<Guid> ids, bool trackChanges);
+        void DeleteGarden(Garden garden);
     }
 }

@@ -24,5 +24,9 @@ namespace Repository
             plant.GardenId = gardenId;
             Create(plant);
         }
+        public void DeletePlant(Plant plant)
+        {
+            Delete(plant);
+        }
     }
 }

@@ -76,5 +76,37 @@ namespace labAPI.Controllers
             var gardensToReturn = _mapper.Map<IEnumerable<GardenDto>>(gardenPlant);
             return Ok(gardensToReturn);
         }
+        [HttpDelete("{id}")]
+        public IActionResult DeleteGarden(Guid id)
+        {
+            var garden = _repository.Garden.GetGarden(id, trackChanges: false);
+            if (garden == null)
+            {
+                _logger.LogInfo($"Garden with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            _repository.Garden.DeleteGarden(garden);
+            _repository.Save();
+            return NoContent();
+        }
+        [HttpPut("{id}")]
+        public IActionResult UpdateGarden(Guid id, [FromBody] GardenForUpdateDto garden)
+        {
+            if (garden == null)
+            {
+                _logger.LogError("GardenForUpdateDto object sent from client is null.");
+                return BadRequest("GardenForUpdateDto object is null");
+            }
+            var gardenEntity = _repository.Garden.GetGarden(id, trackChanges: true);
+            if (gardenEntity == null)
+            {
+                _logger.LogInfo($"Garden with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            _mapper.Map(garden, gardenEntity);
+            _repository.Save();
+            return NoContent();
+        }
     }
 }
+

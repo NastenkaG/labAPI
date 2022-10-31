@@ -21,6 +21,10 @@ namespace Repository
         public void CreateGarden(Garden garden) => Create(garden);
         public IEnumerable<Garden> GetByIds(IEnumerable<Guid> ids, bool trackChanges) =>
             FindByCondition(x => ids.Contains(x.Id), trackChanges).ToList();
+        public void DeleteGarden(Garden garden)
+        {
+            Delete(garden);
+        }
     }
 }
 
