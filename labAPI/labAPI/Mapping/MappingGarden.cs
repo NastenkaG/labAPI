@@ -12,6 +12,8 @@ namespace labAPI.Mapping
                 .ForMember(g => g.Country,
                 opt => opt.MapFrom(x => string.Join(' ', x.Country)));
             CreateMap<Plant, PlantDto>();
+            CreateMap<GardenForCreationDto, Garden>();
+            CreateMap<PlantForCreationDto, Plant>();
         }
     }
 }

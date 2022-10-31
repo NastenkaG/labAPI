@@ -9,5 +9,6 @@ namespace Contracts
     {
         IEnumerable<Plant> GetPlants(Guid gardenId, bool trackChanges);
         Plant GetPlant(Guid gardenId, Guid id, bool trackChanges);
+        void CreatePlantForCompany(Guid gardenId, Plant plant);
     }
 }
