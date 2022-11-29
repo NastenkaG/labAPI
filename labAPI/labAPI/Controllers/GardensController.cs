@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.DataTransferObjects;
 using Entities.Models;
+using labAPI.ActionFilters;
 using labAPI.ModelBinders;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -69,23 +70,25 @@ namespace labAPI.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateGarden([FromBody] GardenForCreationDto garden)
         {
-            if (garden == null)
-            {
-                _logger.LogError("GardenForCreationDto object sent from client is null.");
-                return BadRequest("GardenForCreationDto object is null");
-            }
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Invalid model state for the GardenForCreationDto object");
-                return UnprocessableEntity(ModelState);
-            }
             var gardenEntity = _mapper.Map<Garden>(garden);
             _repository.Garden.CreateGarden(gardenEntity);
             await _repository.SaveAsync();
             var gardenToReturn = _mapper.Map<GardenDto>(gardenEntity);
             return CreatedAtRoute("GardenById", new { id = gardenToReturn.Id }, gardenToReturn);
+        }
+
+        [HttpPut("{id}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [ServiceFilter(typeof(ValidateCompanyExistsAttribute))]
+        public async Task<IActionResult> UpdateGarden(Guid id, [FromBody] GardenForUpdateDto garden)
+        {
+            var gardenEntity = HttpContext.Items["garden"] as Garden;
+            _mapper.Map(garden, gardenEntity);
+            await _repository.SaveAsync();
+            return NoContent();
         }
 
         [HttpPost("collection")]
@@ -113,33 +116,11 @@ namespace labAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ServiceFilter(typeof(ValidateCompanyExistsAttribute))]
         public async Task<IActionResult> DeleteGarden(Guid id)
         {
-            var garden = await _repository.Garden.GetGardenAsync(id, trackChanges:false);
-            if (garden == null)
-            {
-                _logger.LogInfo($"Garden with id: {id} doesn't exist in the database.");
-                return NotFound();
-            }
+            var garden = HttpContext.Items["garden"] as Garden;
             _repository.Garden.DeleteGarden(garden);
-            await _repository.SaveAsync();
-            return NoContent();
-        }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateGarden(Guid id, [FromBody] GardenForUpdateDto garden)
-        {
-            if (garden == null)
-            {
-                _logger.LogError("GardenForUpdateDto object sent from client is null.");
-                return BadRequest("GardenForUpdateDto object is null");
-            }
-            var gardenEntity = await _repository.Garden.GetGardenAsync(id, trackChanges: true);
-            if (gardenEntity == null)
-            {
-                _logger.LogInfo($"Garden with id: {id} doesn't exist in the database.");
-                return NotFound();
-            }
-            _mapper.Map(garden, gardenEntity);
             await _repository.SaveAsync();
             return NoContent();
         }
