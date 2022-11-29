@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -14,13 +16,16 @@ namespace Repository
         : base(repositoryContext)
         {
         }
-        public IEnumerable<Garden> GetAllGardens(bool trackChanges) =>
-            FindAll(trackChanges).OrderBy(g => g.Name).ToList();
-        public Garden GetGarden(Guid gardenId, bool trackChanges) => FindByCondition(g
-            => g.Id.Equals(gardenId), trackChanges).SingleOrDefault();
+        public async Task<IEnumerable<Garden>> GetAllGardensAsync(bool trackChanges) => await FindAll(trackChanges)
+            .OrderBy(g => g.Name)
+            .ToListAsync();
+        public async Task<Garden> GetGardenAsync(Guid gardenId, bool trackChanges) =>
+            await FindByCondition(g => g.Id.Equals(gardenId), trackChanges)
+                .SingleOrDefaultAsync();
+        public async Task<IEnumerable<Garden>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges) =>
+            await FindByCondition(x => ids.Contains(x.Id), trackChanges)
+                .ToListAsync();
         public void CreateGarden(Garden garden) => Create(garden);
-        public IEnumerable<Garden> GetByIds(IEnumerable<Guid> ids, bool trackChanges) =>
-            FindByCondition(x => ids.Contains(x.Id), trackChanges).ToList();
         public void DeleteGarden(Garden garden)
         {
             Delete(garden);

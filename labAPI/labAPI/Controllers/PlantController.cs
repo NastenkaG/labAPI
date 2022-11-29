@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace labAPI.Controllers
 {
@@ -23,16 +24,25 @@ namespace labAPI.Controllers
             _logger = logger;
             _mapper = mapper;
         }
-        [HttpGet("{id}", Name = "GetPlantForCompany")]
-        public IActionResult GetPlantForGarden(Guid gardenId, Guid id)
+
+        [HttpGet]
+        public async Task<IActionResult> GetPlants()
         {
-            var garden = _repository.Garden.GetGarden(gardenId, trackChanges: false);
+            var plant = await _repository.Plant.GetAllPlantsAsync(trackChanges:false);
+            var plantDto = _mapper.Map<IEnumerable<PlantDto>>(plant);
+            return Ok(plantDto);
+        }
+
+        [HttpGet("{id}", Name = "GetPlantForCompany")]
+        public async Task<IActionResult> GetPlantForGarden(Guid gardenId, Guid id)
+        {
+            var garden = await _repository.Garden.GetGardenAsync(gardenId, trackChanges: false);
             if (garden == null)
             {
                 _logger.LogInfo($"Garden with id: {gardenId} doesn't exist in the database.");
             return NotFound();
             }
-            var plantDb = _repository.Plant.GetPlant(gardenId, id, trackChanges:false);
+            var plantDb = await _repository.Plant.GetPlantAsync(gardenId, id, trackChanges:false);
             if (plantDb == null)
             {
                 _logger.LogInfo($"Plant with id: {id} doesn't exist in the database.");
@@ -43,14 +53,19 @@ namespace labAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreatePlantForCompany(Guid gardenId, [FromBody] PlantForCreationDto plant)
+        public async Task<IActionResult> CreatePlantForGarden(Guid gardenId, [FromBody] PlantForCreationDto plant)
         {
             if (plant == null)
             {
                 _logger.LogError("PlantForCreationDto object sent from client isnull.");
                 return BadRequest("PlantForCreationDto object is null");
             }
-            var garden = _repository.Garden.GetGarden(gardenId, trackChanges: false);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the PlantForCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+            var garden = await _repository.Garden.GetGardenAsync(gardenId, trackChanges: false);
             if (garden == null)
             {
                 _logger.LogInfo($"Garden with id: {gardenId} doesn't exist in the database.");
@@ -58,7 +73,7 @@ namespace labAPI.Controllers
             }
             var plantEntity = _mapper.Map<Plant>(plant);
             _repository.Plant.CreatePlantForCompany(gardenId, plantEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             var plantToReturn = _mapper.Map<PlantDto>(plantEntity);
             return CreatedAtRoute("GetPlantForCompany", new
             {
@@ -67,73 +82,83 @@ namespace labAPI.Controllers
             }, plantToReturn);
         }
         [HttpDelete("{id}")]
-        public IActionResult DeletePlantForCompany(Guid gardenId, Guid id)
+        public async Task<IActionResult> DeletePlantForGarden(Guid gardenId, Guid id)
         {
-            var garden = _repository.Garden.GetGarden(gardenId, trackChanges: false);
+            var garden = await _repository.Garden.GetGardenAsync(gardenId, trackChanges: false);
             if (garden == null)
             {
                 _logger.LogInfo($"Garden with id: {gardenId} doesn't exist in the database.");
                 return NotFound();
             }
-            var plantForCompany = _repository.Plant.GetPlant(gardenId, id, trackChanges: false);
+            var plantForCompany = await _repository.Plant.GetPlantAsync(gardenId, id, trackChanges: false);
             if (plantForCompany == null)
             {
                 _logger.LogInfo($"Plant with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             _repository.Plant.DeletePlant(plantForCompany);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
         [HttpPut("{id}")]
-        public IActionResult UpdatePlantForCompany(Guid gardenId, Guid id, [FromBody] PlantForUpdateDto plant)
+        public async Task<IActionResult> UpdatePlantForCompany(Guid gardenId, Guid id, [FromBody] PlantForUpdateDto plant)
         {
             if (plant == null)
             {
                 _logger.LogError("PlantForUpdateDto object sent from client is null.");
             return BadRequest("PlantForUpdateDto object is null");
             }
-            var garden = _repository.Garden.GetGarden(gardenId, trackChanges: false);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the PlantForUpdateDto object");
+                return UnprocessableEntity(ModelState);
+            }
+            var garden = await _repository.Garden.GetGardenAsync(gardenId, trackChanges: false);
             if (garden == null)
             {
                 _logger.LogInfo($"Garden with id: {gardenId} doesn't exist in the database.");
             return NotFound();
             }
-            var plantEntity = _repository.Plant.GetPlant(gardenId, id, trackChanges: true);
+            var plantEntity = await _repository.Plant.GetPlantAsync(gardenId, id, trackChanges: true);
             if (plantEntity == null)
             {
                 _logger.LogInfo($"Plant with id: {id} doesn't exist in the database.");
             return NotFound();
             }
             _mapper.Map(plant, plantEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
         [HttpPatch("{id}")]
-        public IActionResult PartiallyUpdatePlantForGarden(Guid gardenId, Guid id,
-            [FromBody] JsonPatchDocument<PlantForUpdateDto> patchDoc)
+        public async Task<IActionResult> PartiallyUpdatePlantForGarden(Guid gardenId, Guid id, [FromBody] JsonPatchDocument<PlantForUpdateDto> patchDoc)
         {
             if (patchDoc == null)
             {
                 _logger.LogError("patchDoc object sent from client is null.");
                 return BadRequest("patchDoc object is null");
             }
-            var garden = _repository.Garden.GetGarden(gardenId, trackChanges: false);
+            var garden = await _repository.Garden.GetGardenAsync(gardenId, trackChanges: false);
             if (garden == null)
             {
                 _logger.LogInfo($"Garden with id: {gardenId} doesn't exist in the database.");
                 return NotFound();
             }
-            var plantEntity = _repository.Plant.GetPlant(gardenId, id, trackChanges: true);
+            var plantEntity = await _repository.Plant.GetPlantAsync(gardenId, id, trackChanges: true);
             if (plantEntity == null)
             {
                 _logger.LogInfo($"Plant with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             var plantToPatch = _mapper.Map<PlantForUpdateDto>(plantEntity);
-            patchDoc.ApplyTo(plantToPatch);
+            patchDoc.ApplyTo(plantToPatch, ModelState);
+            TryValidateModel(plantToPatch);
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the patch document");
+                return UnprocessableEntity(ModelState);
+            }
             _mapper.Map(plantToPatch, plantEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
     }

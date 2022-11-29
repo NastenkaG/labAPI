@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Contracts
 {
@@ -10,6 +11,7 @@ namespace Contracts
         IEmployeeRepository Employee { get; }
         IGardenRepository Garden { get; }
         IPlantRepository Plant { get; }
-        void Save();
+        Task SaveAsync();
+        //void Save();
     }
 }

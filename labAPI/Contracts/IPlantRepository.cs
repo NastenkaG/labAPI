@@ -2,13 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Contracts
 {
     public interface IPlantRepository
     {
-        IEnumerable<Plant> GetPlants(Guid gardenId, bool trackChanges);
-        Plant GetPlant(Guid gardenId, Guid id, bool trackChanges);
+        Task<IEnumerable<Plant>> GetAllPlantsAsync(bool trackChanges);
+        Task<Plant> GetPlantAsync(Guid gardenId, Guid id, bool trackChanges);
         void CreatePlantForCompany(Guid gardenId, Plant plant);
         void DeletePlant(Plant plant);
     }

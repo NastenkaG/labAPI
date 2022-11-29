@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using static System.Collections.Specialized.BitVector32;
 
 namespace labAPI.Controllers
@@ -25,10 +26,18 @@ namespace labAPI.Controllers
             _logger = logger;
             _mapper = mapper;
         }
-        [HttpGet("{id}", Name = "GardenById")]
-        public IActionResult GetGardens(Guid id)
+        [HttpGet]
+        public async Task<IActionResult> GetGardens()
         {
-            var garden = _repository.Garden.GetGarden(id, trackChanges:false);
+            var garden = await _repository.Garden.GetAllGardensAsync(trackChanges: false);
+            var gardenDto = _mapper.Map<IEnumerable<GardenDto>>(garden);
+            return Ok(gardenDto);
+        }
+
+        [HttpGet("{id}", Name = "GardenById")]
+        public async Task<IActionResult> GetGarden(Guid id)
+        {
+            var garden = await _repository.Garden.GetGardenAsync(id, trackChanges: false);
             if (garden == null)
             {
                 _logger.LogInfo($"Garden with id: {id} doesn't exist in the database.");
@@ -40,71 +49,98 @@ namespace labAPI.Controllers
                 return Ok(gardenDto);
             }
         }
-        [HttpPost("collection")]
-        public IActionResult CreateGardenCollection([FromBody] IEnumerable<GardenForCreationDto> gardenCollection)
-        {
-            if (gardenCollection == null)
-            {
-                _logger.LogError("Garden collection sent from client is null.");
-                return BadRequest("Garden collection is null");
-            }
-            var gardenPlant = _mapper.Map<IEnumerable<Garden>>(gardenCollection);
-            foreach (var garden in gardenPlant)
-            {
-                _repository.Garden.CreateGarden(garden);
-            }
-            _repository.Save();
-            var gardenCollectionToReturn = _mapper.Map<IEnumerable<GardenDto>>(gardenPlant);
-            var ids = string.Join(",", gardenCollectionToReturn.Select(c => c.Id));
-            return CreatedAtRoute("GardenCollection", new { ids }, gardenCollectionToReturn);
-        }
 
         [HttpGet("collection/({ids})", Name = "GardenCollection")]
-        public IActionResult GetGardenCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        public async Task<IActionResult> GetGardenCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
             if (ids == null)
             {
                 _logger.LogError("Parameter ids is null");
                 return BadRequest("Parameter ids is null");
             }
-            var gardenPlant = _repository.Garden.GetByIds(ids, trackChanges: false);
-            if (ids.Count() != gardenPlant.Count())
+            var gardenEntities = await _repository.Garden.GetByIdsAsync(ids,trackChanges: false);
+            if (ids.Count() != gardenEntities.Count())
             {
                 _logger.LogError("Some ids are not valid in a collection");
                 return NotFound();
             }
-            var gardensToReturn = _mapper.Map<IEnumerable<GardenDto>>(gardenPlant);
-            return Ok(gardensToReturn);
+            var gardenToReturn = _mapper.Map<IEnumerable<GardenDto>>(gardenEntities);
+            return Ok(gardenToReturn);
         }
-        [HttpDelete("{id}")]
-        public IActionResult DeleteGarden(Guid id)
+
+        [HttpPost]
+        public async Task<IActionResult> CreateGarden([FromBody] GardenForCreationDto garden)
         {
-            var garden = _repository.Garden.GetGarden(id, trackChanges: false);
+            if (garden == null)
+            {
+                _logger.LogError("GardenForCreationDto object sent from client is null.");
+                return BadRequest("GardenForCreationDto object is null");
+            }
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the GardenForCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+            var gardenEntity = _mapper.Map<Garden>(garden);
+            _repository.Garden.CreateGarden(gardenEntity);
+            await _repository.SaveAsync();
+            var gardenToReturn = _mapper.Map<GardenDto>(gardenEntity);
+            return CreatedAtRoute("GardenById", new { id = gardenToReturn.Id }, gardenToReturn);
+        }
+
+        [HttpPost("collection")]
+        public async Task<IActionResult> CreateGardenCollection([FromBody] IEnumerable<GardenForCreationDto> gardenCollection)
+        {
+            if (gardenCollection == null)
+            {
+                _logger.LogError("Garden collection sent from client is null.");
+                return BadRequest("Garden collection is null");
+            }
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the GardenForCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+            var gardenPlant = _mapper.Map<IEnumerable<Garden>>(gardenCollection);
+            foreach (var garden in gardenPlant)
+            {
+                _repository.Garden.CreateGarden(garden);
+            }
+            await _repository.SaveAsync();
+            var gardenCollectionToReturn = _mapper.Map<IEnumerable<GardenDto>>(gardenPlant);
+            var ids = string.Join(",", gardenCollectionToReturn.Select(c => c.Id));
+            return CreatedAtRoute("GardenCollection", new { ids }, gardenCollectionToReturn);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteGarden(Guid id)
+        {
+            var garden = await _repository.Garden.GetGardenAsync(id, trackChanges:false);
             if (garden == null)
             {
                 _logger.LogInfo($"Garden with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             _repository.Garden.DeleteGarden(garden);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateGarden(Guid id, [FromBody] GardenForUpdateDto garden)
+        public async Task<IActionResult> UpdateGarden(Guid id, [FromBody] GardenForUpdateDto garden)
         {
             if (garden == null)
             {
                 _logger.LogError("GardenForUpdateDto object sent from client is null.");
                 return BadRequest("GardenForUpdateDto object is null");
             }
-            var gardenEntity = _repository.Garden.GetGarden(id, trackChanges: true);
+            var gardenEntity = await _repository.Garden.GetGardenAsync(id, trackChanges: true);
             if (gardenEntity == null)
             {
                 _logger.LogInfo($"Garden with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             _mapper.Map(garden, gardenEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
             return NoContent();
         }
     }

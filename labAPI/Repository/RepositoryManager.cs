@@ -3,6 +3,7 @@ using Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -17,6 +18,8 @@ namespace Repository
         {
             _repositoryContext = repositoryContext;
         }
+        public Task SaveAsync() => _repositoryContext.SaveChangesAsync();
+
         public ICompanyRepository Company
         {
             get
@@ -59,9 +62,9 @@ namespace Repository
 
         public void Save() => _repositoryContext.SaveChanges();
 
-        void IRepositoryManager.Save()
+        /*void IRepositoryManager.Save()
         {
             throw new NotImplementedException();
-        }
+        }*/
     }
 }
