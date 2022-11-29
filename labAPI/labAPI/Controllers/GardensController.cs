@@ -14,6 +14,7 @@ using static System.Collections.Specialized.BitVector32;
 
 namespace labAPI.Controllers
 {
+    [ApiVersion("1.0")]
     [Route("api/gardens")]
     [ApiController]
     public class GardensController : ControllerBase
@@ -123,6 +124,13 @@ namespace labAPI.Controllers
             _repository.Garden.DeleteGarden(garden);
             await _repository.SaveAsync();
             return NoContent();
+        }
+
+        [HttpOptions]
+        public IActionResult GetGardensOptions()
+        {
+            Response.Headers.Add("Allow", "GET, OPTIONS, POST");
+            return Ok();
         }
     }
 }

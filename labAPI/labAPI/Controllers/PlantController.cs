@@ -42,6 +42,7 @@ namespace labAPI.Controllers
         }*/
 
         [HttpGet]
+        [HttpHead]
         public async Task<IActionResult> GetPlantForGarden(Guid gardenId,
             [FromQuery] PlantParameters plantParameters)
         {
