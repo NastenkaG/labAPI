@@ -7,5 +7,10 @@ namespace Entities.RequestFeatures
 {
     public class PlantParameters : RequestParameters
     {
+        public PlantParameters()
+        {
+            OrderBy = "name";
+        }
+        public string SearchTerm { get; set; }
     }
 }

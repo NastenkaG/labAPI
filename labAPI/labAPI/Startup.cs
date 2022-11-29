@@ -1,4 +1,5 @@
 using Contracts;
+using Entities.DataTransferObjects;
 using labAPI.ActionFilters;
 using labAPI.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
+using Repository.DataShaping;
 using System.IO;
 
 namespace labAPI
@@ -36,6 +38,8 @@ namespace labAPI
             services.AddScoped<ValidateCompanyExistsAttribute>();
             services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
             services.AddScoped<ValidatePlantForGardenExistsAttribute>();
+            services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
+            services.AddScoped<IDataShaper<PlantDto>, DataShaper<PlantDto>>();
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;

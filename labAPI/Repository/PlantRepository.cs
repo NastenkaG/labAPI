@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Entities.RequestFeatures;
 using System.ComponentModel.Design;
+using Repository.Extensions;
 
 namespace Repository
 {
@@ -22,7 +23,8 @@ namespace Repository
         PlantParameters plantParameters, bool trackChanges)
         {
             var plant = await FindByCondition(p => p.GardenId.Equals(gardenId), trackChanges)
-                .OrderBy(p => p.Name)
+                .Search(plantParameters.SearchTerm)
+                .Sort(plantParameters.OrderBy)
                 .ToListAsync();
             return PagedList<Plant>.ToPagedList(plant, plantParameters.PageNumber, plantParameters.PageSize);
         }

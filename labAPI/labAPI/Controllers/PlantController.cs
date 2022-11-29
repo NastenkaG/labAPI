@@ -20,12 +20,17 @@ namespace labAPI.Controllers
         private readonly IRepositoryManager _repository;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
-        public PlantController(IRepositoryManager repository, ILoggerManager logger,
-        IMapper mapper)
+        private readonly IDataShaper<PlantDto> _dataShaper;
+        public PlantController(
+            IRepositoryManager repository, 
+            ILoggerManager logger,
+            IMapper mapper,
+            IDataShaper<PlantDto> dataShaper)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _dataShaper = dataShaper;
         }
 
         /*[HttpGet]
@@ -49,7 +54,7 @@ namespace labAPI.Controllers
             var plantFromDb = await _repository.Plant.GetPlantsAsync(gardenId, plantParameters, trackChanges: false);
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(plantFromDb.MetaData));
             var plantDto = _mapper.Map<IEnumerable<PlantDto>>(plantFromDb);
-            return Ok(plantDto);
+            return Ok(_dataShaper.ShapeData(plantDto, plantParameters.Fields));
         }
 
         [HttpPost]
