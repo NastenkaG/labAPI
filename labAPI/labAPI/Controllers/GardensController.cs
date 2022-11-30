@@ -4,6 +4,7 @@ using Entities.DataTransferObjects;
 using Entities.Models;
 using labAPI.ActionFilters;
 using labAPI.ModelBinders;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using System;
@@ -28,7 +29,7 @@ namespace labAPI.Controllers
             _logger = logger;
             _mapper = mapper;
         }
-        [HttpGet]
+        [HttpGet(Name = "GetGardens"), Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetGardens()
         {
             var garden = await _repository.Garden.GetAllGardensAsync(trackChanges: false);

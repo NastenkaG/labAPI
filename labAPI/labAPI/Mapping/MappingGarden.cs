@@ -16,6 +16,7 @@ namespace labAPI.Mapping
             CreateMap<PlantForCreationDto, Plant>();
             CreateMap<PlantForUpdateDto, Plant>().ReverseMap();
             CreateMap<GardenForUpdateDto, Garden>();
+            CreateMap<UserForRegistrationDto, User>();
         }
     }
 }

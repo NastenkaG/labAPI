@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
+using Repository;
 using Repository.DataShaping;
 using System.IO;
 
@@ -40,6 +41,7 @@ namespace labAPI
             services.AddScoped<ValidatePlantForGardenExistsAttribute>();
             services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
             services.AddScoped<IDataShaper<PlantDto>, DataShaper<PlantDto>>();
+            services.AddScoped<IAuthenticationManager, AuthenticationManager>();
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
@@ -53,6 +55,9 @@ namespace labAPI
                 .AddXmlDataContractSerializerFormatters()
                 .AddCustomCSVFormatter();
             services.ConfigureVersioning();
+            services.AddAuthentication();
+            services.ConfigureIdentity();
+            services.ConfigureJWT(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,6 +83,7 @@ namespace labAPI
                 ForwardedHeaders = ForwardedHeaders.All
             });
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => 
             { 
