@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 namespace labAPI.Controllers
 {
     [ApiVersion("2.0", Deprecated = true)]
+
     [Route("api/gardens")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v2")]
     public class GardenV2Controller : ControllerBase
     {
         private readonly IRepositoryManager _repository;

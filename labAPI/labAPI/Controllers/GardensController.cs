@@ -15,9 +15,9 @@ using static System.Collections.Specialized.BitVector32;
 
 namespace labAPI.Controllers
 {
-    [ApiVersion("1.0")]
     [Route("api/gardens")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1")]
     public class GardensController : ControllerBase
     {
         private readonly IRepositoryManager _repository;
@@ -29,6 +29,10 @@ namespace labAPI.Controllers
             _logger = logger;
             _mapper = mapper;
         }
+        /// <summary>
+        /// Получает список всех садов
+        /// </summary>
+        /// <returns> Список садов</returns>
         [HttpGet(Name = "GetGardens"), Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetGardens()
         {
@@ -71,7 +75,18 @@ namespace labAPI.Controllers
             return Ok(gardenToReturn);
         }
 
-        [HttpPost]
+        /// <summary>
+        /// Создает вновь созданный сад
+        /// </summary>
+        /// <param name="garden"></param>.
+        /// <returns>Вновь созданный сад</returns>.
+        /// <response code="201"> Возвращает только что созданный элемент</response>.
+        /// <response code="400"> Если элемент равен null</response>.
+        /// <код ответа="422"> Если модель недействительна</ответ>.
+        [HttpPost(Name = "CreateGarden")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(422)]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateGarden([FromBody] GardenForCreationDto garden)
         {
